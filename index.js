@@ -263,6 +263,27 @@ function createRingSVG(percent, disabled) {
     trackCircle.setAttribute('r', RING_RADIUS);
     trackCircle.setAttribute('class', 'cui-ring__track');
 
+    // Add percentage marker lines at 25%, 50%, 75%, 100%
+    const markers = [25, 50, 75, 100];
+    markers.forEach(percentage => {
+        const angle = (percentage / 100) * 360 - 90; // -90 to start from top
+        const radians = (angle * Math.PI) / 180;
+        // Start from the outer edge of the circle
+        const x1 = 10 + (RING_RADIUS + 1) * Math.cos(radians);
+        const y1 = 10 + (RING_RADIUS + 1) * Math.sin(radians);
+        // Extend inward toward the center
+        const x2 = 10 + (RING_RADIUS - 2) * Math.cos(radians);
+        const y2 = 10 + (RING_RADIUS - 2) * Math.sin(radians);
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', x1);
+        line.setAttribute('y1', y1);
+        line.setAttribute('x2', x2);
+        line.setAttribute('y2', y2);
+        line.setAttribute('class', 'cui-ring__marker');
+        svg.appendChild(line);
+    });
+
     const valueCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     valueCircle.setAttribute('cx', '10');
     valueCircle.setAttribute('cy', '10');
