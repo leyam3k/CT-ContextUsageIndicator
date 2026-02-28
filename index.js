@@ -467,6 +467,15 @@ function togglePopover() {
     isPopoverVisible = !isPopoverVisible;
 
     if (isPopoverVisible) {
+        // Trigger a synthetic document click to let other popups close naturally
+        // This respects all existing popup close handlers without explicit coupling
+        const syntheticClick = new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+        });
+        document.body.dispatchEvent(syntheticClick);
+
         // Update content before showing
         const body = popoverElement.querySelector('.cui-popover__body');
         if (body && latestSnapshot) {
@@ -474,11 +483,11 @@ function togglePopover() {
             body.replaceWith(newContent);
         }
 
-        popoverElement.style.display = 'block';
+        popoverElement.classList.add('cui-popover--active');
         // Position popover
         positionPopover();
     } else {
-        popoverElement.style.display = 'none';
+        popoverElement.classList.remove('cui-popover--active');
     }
 }
 
@@ -544,7 +553,6 @@ function createUI() {
     if (!popoverElement) {
         popoverElement = document.createElement('div');
         popoverElement.className = 'cui-popover';
-        popoverElement.style.display = 'none';
 
         const content = createPopoverContent(latestSnapshot || {});
         popoverElement.appendChild(content);
@@ -553,7 +561,7 @@ function createUI() {
 
         // Close on outside click
         document.addEventListener('click', (e) => {
-            if (isPopoverVisible && !popoverElement.contains(e.target) && e.target !== hostElement) {
+            if (popoverElement.classList.contains('cui-popover--active') && !popoverElement.contains(e.target) && e.target !== hostElement) {
                 togglePopover();
             }
         });
